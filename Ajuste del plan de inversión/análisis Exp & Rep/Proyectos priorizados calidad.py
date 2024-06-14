@@ -91,15 +91,40 @@ nombre_hoja_2 = 'Obras Exp & Rep'
 # Procesar los archivos
 df_plan_25_26, df_plan_full_calidad = procesar_archivos(ruta_archivo_1, nombre_hoja_1, ruta_archivo_2, nombre_hoja_2)
 
-# Mostrar los DataFrames limpios
-if df_plan_25_26 is not None:
-    print("Datos limpios del primer archivo (df_plan_25_26):")
-    print(df_plan_25_26.head())
-else:
-    print("No se pudo leer o limpiar el primer archivo.")
+# Verificar que ambos dataframes fueron leídos y limpiados correctamente
+if df_plan_25_26 is not None and df_plan_full_calidad is not None:
+    # Filtrar filas donde "Descripción UC" contiene "km"
+    df_plan_25_26 = df_plan_25_26[df_plan_25_26['Descripción UC'].str.contains('km', na=False)]
 
-if df_plan_full_calidad is not None:
-    print("\nDatos limpios del segundo archivo (df_plan_full_calidad):")
+    # Crear la columna 'validador' en df_plan_25_26
+    df_plan_25_26['validador'] = (
+        df_plan_25_26['tipo de proyecto'] + "_" +
+        df_plan_25_26['Observacion 1'] + "_" +
+        df_plan_25_26['Observacion 2'] + "_" +
+        df_plan_25_26['Observacion 3'] + "_" +
+        df_plan_25_26['Observacion 4'] + "_" +
+        df_plan_25_26['Observacion 5']
+    )
+
+    # Crear la columna 'validador' en df_plan_full_calidad
+    df_plan_full_calidad['validador'] = (
+        df_plan_full_calidad['tipo de proyecto'] + "_" +
+        df_plan_full_calidad['Columna1'] + "_" +
+        df_plan_full_calidad['Columna2'] + "_" +
+        df_plan_full_calidad['Columna3'] + "_" +
+        df_plan_full_calidad['Columna4'] + "_" +
+        df_plan_full_calidad['Columna5']
+    )
+
+    # Crear un diccionario para buscar los valores de 'Cantidad de UC' basados en 'validador'
+    diccionario_validador = df_plan_25_26.set_index('validador')['Cantidad de UC'].to_dict()
+
+    # Crear las nuevas columnas en df_plan_full_calidad
+    df_plan_full_calidad['incluido en el PIR 25 - 26'] = df_plan_full_calidad['validador'].apply(lambda x: 'si' if x in diccionario_validador else 'no')
+    df_plan_full_calidad['cantidad incluida en el PIR [km]'] = df_plan_full_calidad['validador'].map(diccionario_validador)
+
+    # Mostrar el resultado
+    print("Resultado del dataframe actualizado:")
     print(df_plan_full_calidad.head())
 else:
-    print("No se pudo leer o limpiar el segundo archivo.")
+    print("No se pudo leer o limpiar uno de los archivos.")
