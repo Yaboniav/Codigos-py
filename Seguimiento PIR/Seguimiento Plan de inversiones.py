@@ -163,7 +163,7 @@ if __name__ == "__main__":
 """
 Guardado de plantilla
 """
-direccion = f"D:/OneDrive - Grupo EPM/1. PLANEACIÓN DE INFRAESTRUCTURA/04_PIR/3_Ejecutado/2024/4. Seguimiento/1. Archivos Excel/3. Consolidado final/Consolidado_def.csv"
+direccion = f"D:/OneDrive - Grupo EPM/1. PLANEACIÓN DE INFRAESTRUCTURA/04_PIR/3_Ejecutado/2024/4. Seguimiento/4. outputs - Archivos seguimiento/1. Plantillas individuales/{equipo_trabajo}.csv"
 plantilla.to_csv(direccion, sep=';', index=False, encoding='utf-8-sig')    
 tipo_columna1 = plantilla['Número de conductores'].dtype
 #subestaciones = pd.read_csv(ruta_csv, encoding="ISO-8859-1",sep=';',decimal='.', dtype={"IU": str})

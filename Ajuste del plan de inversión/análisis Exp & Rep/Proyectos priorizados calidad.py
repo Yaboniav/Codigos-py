@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jun 13 15:52:04 2024
@@ -49,12 +50,11 @@ def limpiar_datos(df):
     # df = df.drop(columns=['ColumnaInnecesaria1', 'ColumnaInnecesaria2'])
 
     # Manejo de valores nulos
-    df = df.dropna(how='all')  # Eliminar filas donde todos los elementos son NaN
-    df = df.fillna(method='ffill')  # Rellenar NaNs usando el método forward fill
+    df = df.fillna(0)  # Rellenar NaNs con 0
 
     # Estandarizar formatos de datos
-    if 'ColumnaFecha' in df.columns:
-        df['ColumnaFecha'] = pd.to_datetime(df['ColumnaFecha'], errors='coerce')
+    #if 'ColumnaFecha' in df.columns:
+        #df['ColumnaFecha'] = pd.to_datetime(df['ColumnaFecha'], errors='coerce')
     
     return df
 
@@ -85,7 +85,7 @@ def procesar_archivos(ruta_archivo_1, nombre_hoja_1, ruta_archivo_2, nombre_hoja
 # Rutas de archivos y nombres de hojas actualizados
 ruta_archivo_1 = r"D:\OneDrive - Grupo EPM\1. PLANEACIÓN DE INFRAESTRUCTURA\06_Proyecciones Financieras\PROYECCIONES 2024-2043 - PIE 2025-2028\5_Unidades Constructivas\Análisis adicionales\Exp & Rep\ESTIMACIÓN UUCC PIR 2025- 2026.xlsx"
 nombre_hoja_1 = 'UCs 25 - 26'
-ruta_archivo_2 = r"D:\OneDrive - Grupo EPM\3. CENS\0. PIE - PIR - PF\2. Insumos Exp - Rep\UC's Exp & Rep-calidad MT.xlsx"
+ruta_archivo_2 = r"D:\OneDrive - Grupo EPM\3. CENS\0. PIE - PIR - PF\2. Insumos Exp - Rep\UC's Exp & Rep-calidad MT - v2.xlsx"
 nombre_hoja_2 = 'Obras Exp & Rep'
 
 # Procesar los archivos
@@ -98,31 +98,31 @@ if df_plan_25_26 is not None and df_plan_full_calidad is not None:
 
     # Crear la columna 'validador' en df_plan_25_26
     df_plan_25_26['validador'] = (
-        df_plan_25_26['tipo de proyecto'] + "_" +
-        df_plan_25_26['Observacion 1'] + "_" +
-        df_plan_25_26['Observacion 2'] + "_" +
-        df_plan_25_26['Observacion 3'] + "_" +
-        df_plan_25_26['Observacion 4'] + "_" +
-        df_plan_25_26['Observacion 5']
+        df_plan_25_26['Observacion 1'].astype(str) + "_" +
+        df_plan_25_26['Observacion 2'].astype(str) + "_" +
+        df_plan_25_26['Observacion 3'].astype(str)
     )
 
     # Crear la columna 'validador' en df_plan_full_calidad
     df_plan_full_calidad['validador'] = (
-        df_plan_full_calidad['tipo de proyecto'] + "_" +
-        df_plan_full_calidad['Columna1'] + "_" +
-        df_plan_full_calidad['Columna2'] + "_" +
-        df_plan_full_calidad['Columna3'] + "_" +
-        df_plan_full_calidad['Columna4'] + "_" +
-        df_plan_full_calidad['Columna5']
+        df_plan_full_calidad['Columna1'].astype(str) + "_" +        
+        df_plan_full_calidad['Columna2'].astype(str) + "_" +
+        df_plan_full_calidad['Columna3'].astype(str)
     )
 
     # Crear un diccionario para buscar los valores de 'Cantidad de UC' basados en 'validador'
-    diccionario_validador = df_plan_25_26.set_index('validador')['Cantidad de UC'].to_dict()
-
+    diccionario_validador1 = df_plan_25_26.set_index('validador')['Cantidad de UC'].to_dict()
+    diccionario_validador2 = df_plan_25_26.set_index('validador')['Año definitivo'].to_dict()
+    diccionario_validador3 = df_plan_25_26.set_index('validador')['Dirección'].to_dict()
+    diccionario_validador4 = df_plan_25_26.set_index('validador')['Código línea'].to_dict()
+    
     # Crear las nuevas columnas en df_plan_full_calidad
-    df_plan_full_calidad['incluido en el PIR 25 - 26'] = df_plan_full_calidad['validador'].apply(lambda x: 'si' if x in diccionario_validador else 'no')
-    df_plan_full_calidad['cantidad incluida en el PIR [km]'] = df_plan_full_calidad['validador'].map(diccionario_validador)
-
+    df_plan_full_calidad['incluido en el PIR 25 - 26'] = df_plan_full_calidad['validador'].apply(lambda x: 'si' if x in diccionario_validador1 else 'no')
+    df_plan_full_calidad['cantidad incluida en el PIR [km]'] = df_plan_full_calidad['validador'].map(diccionario_validador1)
+    df_plan_full_calidad['año ajustado'] = df_plan_full_calidad['validador'].map(diccionario_validador2)
+    df_plan_full_calidad['Dirección'] = df_plan_full_calidad['validador'].map(diccionario_validador3)
+    df_plan_full_calidad['alimentador def'] = df_plan_full_calidad['validador'].map(diccionario_validador4)
+    
     # Mostrar el resultado
     print("Resultado del dataframe actualizado:")
     print(df_plan_full_calidad.head())
